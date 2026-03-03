@@ -1,5 +1,6 @@
 # Stage 1: The Builder
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
+ENV UV_HTTP_TIMEOUT=120
 WORKDIR /app
 
 # Copy the dependency files first for docker caching

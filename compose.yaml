@@ -20,6 +20,11 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
+  
+  product-service:
+    build:
+      context: .
+      dockerfile: services/product-service/Dockerfile
+      
 volumes:
   postgres_data:

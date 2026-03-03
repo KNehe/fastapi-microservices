@@ -9,4 +9,5 @@ dependencies = []
 [tool.uv.workspace]
 members = [
     "services/user-service",
+    "services/product-service",
 ]
