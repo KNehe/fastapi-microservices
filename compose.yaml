@@ -1,14 +1,32 @@
 services:
+  traefik:
+    image: traefik:v3.0
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
   user-service:
     build:
       context: .
       dockerfile: services/user-service/Dockerfile
-    ports:
-      - "8001:8000"
+    # ports:
+    #   - "8001:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.user-service.entrypoints=web"
+      - "traefik.http.routers.user-service.rule=PathPrefix(`/users`)"
+      - "traefik.http.services.user-service.loadbalancer.server.port=8000"
     environment:
       - DATABASE_URL=postgresql+psycopg://postgres:password@db:5432/user_db
     depends_on:
       - db
+      - product-service
   
   db:
     image: postgres:16-alpine
