@@ -20,7 +20,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.user-service.entrypoints=web"
-      - "traefik.http.routers.user-service.rule=PathPrefix(`/users`)"
+      - "traefik.http.routers.user-service.rule=PathPrefix(`/users`) || PathPrefix(`/docs`)"
       - "traefik.http.services.user-service.loadbalancer.server.port=8000"
     environment:
       - DATABASE_URL=postgresql+psycopg://postgres:password@db:5432/user_db
