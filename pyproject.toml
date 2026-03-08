@@ -14,4 +14,5 @@ members = [
     "services/user-service",
     "services/product-service",
     "services/order-service",
+    "services/inventory-service",
 ]
