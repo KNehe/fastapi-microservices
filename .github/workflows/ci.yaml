@@ -23,6 +23,8 @@ jobs:
           python-version: '3.12'
 
       - name: Run Tests (User Service)
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           cd services/user-service
           uv sync

@@ -24,3 +24,6 @@ dev = [
     "httpx>=0.28.1",
     "pytest>=9.0.2",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
