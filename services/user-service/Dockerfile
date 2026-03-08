@@ -25,5 +25,7 @@ COPY --from=builder /app /app
 # Put the virtual environment on the path
 ENV PATH="/app/.venv/bin:$PATH"
 
+ENV PYTHONPATH="/app/services/user-service:/app"
+
 # Run the FastAPI server.
 CMD ["fastapi", "run", "services/user-service/main.py", "--port", "8000", "--host", "0.0.0.0"]
