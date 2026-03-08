@@ -6,11 +6,22 @@ import aio_pika
 # Global connection variable
 rabbitmq_connection = None
 
+import asyncio
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global rabbitmq_connection
-    # Connect to RabbitMQ container
-    rabbitmq_connection = await aio_pika.connect_robust("amqp://guest:guest@rabbitmq:5672/")
+    # Connect to RabbitMQ container with retry
+    for i in range(5):
+        try:
+            rabbitmq_connection = await aio_pika.connect_robust("amqp://guest:guest@rabbitmq:5672/")
+            break
+        except Exception as e:
+            print(f"RabbitMQ not ready yet, retrying in 2 seconds (attempt {i+1}/5)...")
+            await asyncio.sleep(2)
+    else:
+        raise Exception("Failed to connect to RabbitMQ after 5 attempts")
+        
     print("Connected to RabbitMQ!")
     yield
     # Cleanup on shutdown

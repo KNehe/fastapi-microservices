@@ -38,11 +38,21 @@ async def process_message(message: aio_pika.abc.AbstractIncomingMessage):
         # If any Python error occurs, safely dead-letter the message
         await message.reject(requeue=False)
 
+import asyncio
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # 1. Connect to RabbitMQ
-    connection = await aio_pika.connect_robust("amqp://guest:guest@rabbitmq:5672/")
-    channel = await connection.channel()
+    # 1. Connect to RabbitMQ with retry
+    for i in range(5):
+        try:
+            connection = await aio_pika.connect_robust("amqp://guest:guest@rabbitmq:5672/")
+            channel = await connection.channel()
+            break
+        except Exception as e:
+            print(f"RabbitMQ not ready yet, retrying in 2 seconds (attempt {i+1}/5)...")
+            await asyncio.sleep(2)
+    else:
+        raise Exception("Failed to connect to RabbitMQ after 5 attempts")
     
     # 2. Declare the Dead Letter Exchange (DLX) and Dead Letter Queue (DLQ)
     dlx = await channel.declare_exchange("dlx", aio_pika.ExchangeType.DIRECT)
