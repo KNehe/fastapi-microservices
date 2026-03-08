@@ -1,7 +1,7 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Response, status
 from contextlib import asynccontextmanager
 from db import engine, get_session
-from sqlmodel import SQLModel, Session, select
+from sqlmodel import SQLModel, Session, select, text
 from models import User, UserPublic
 import grpc
 import product_pb2
@@ -94,3 +94,20 @@ def login(user_data: User, session: Session = Depends(get_session)):
    
     token = create_access_token(data={"sub": str(db_user.id), "email": db_user.email})
     return {"access_token": token, "token_type": "bearer"}
+
+@app.get("/health/liveness", tags=["Health"])
+def liveness_probe():
+    """Checks if the FastAPI server is running."""
+    return {"status": "alive"}
+
+@app.get("/health/readiness", tags=["Health"])
+def readiness_probe(response: Response, session: Session = Depends(get_session)):
+    """Checks if the service is ready to handle traffic (e.g., DB connected)."""
+    try:
+        # Execute a simple ping to the database
+        session.exec(text("SELECT 1"))
+        return {"status": "ready"}
+    except Exception as e:
+        # If the DB is unreachable, return a 503 error
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        return {"status": "unhealthy", "detail": str(e)}

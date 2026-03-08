@@ -48,6 +48,13 @@ services:
       - db
       - product-service
       - jaeger
+    healthcheck:
+      # We use Python's built-in urllib so we don't have to install 'curl' in the container
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health/readiness')\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
   db:
     image: postgres:16-alpine
     environment:
