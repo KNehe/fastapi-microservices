@@ -12,11 +12,6 @@ async def lifespan(app: FastAPI):
     # Connect to RabbitMQ container
     rabbitmq_connection = await aio_pika.connect_robust("amqp://guest:guest@rabbitmq:5672/")
     print("Connected to RabbitMQ!")
-
-    # Declare the queue so it exists in RabbitMQ
-    async with rabbitmq_connection.channel() as channel:
-        await channel.declare_queue("order_events", durable=True)
-
     yield
     # Cleanup on shutdown
     await rabbitmq_connection.close()
