@@ -1,0 +1,40 @@
+# k8s/user-api.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service-deployment
+spec:
+  replicas: 2 # Kubernetes will ensure 2 instances are always running!
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: user-service:latest
+        imagePullPolicy: Never # Use the local image we just built
+        ports:
+        - containerPort: 8000
+        env:
+        # In a real cluster, we use K8s Secrets. We are hardcoding for the demo.
+        - name: DATABASE_URL
+          value: "sqlite:///database.db"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  type: NodePort # Exposes the service so we can hit it from our browser
+  selector:
+    app: user-service # This tells the Service exactly which Pods to load balance!
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+      nodePort: 30001 # We map it to port 30001 on our host machine
