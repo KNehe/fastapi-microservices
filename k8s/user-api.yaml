@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: user-service-deployment
 spec:
-  replicas: 2 # Kubernetes will ensure 2 instances are always running!
+  replicas: 2 # Kubernetes will ensure 10 instances are always running!
   selector:
     matchLabels:
       app: user-service
